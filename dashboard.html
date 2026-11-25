@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard</title>
+<link rel="icon" href="images/favicon.ico" type="image/x-icon">
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="style.css">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial;
+}
+
+/* Layout */
+body {
+  display: flex;
+  min-height: 100vh;
+  background: #f4f6f9;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: #111;
+  color: white;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sidebar h2 {
+  padding: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+}
+
+.sidebar ul li {
+  padding: 15px 20px;
+  cursor: pointer;
+  font-display: block;
+}
+
+.sidebar ul li:hover {
+  background: #333;
+}
+
+/* Logout bottom */
+.logout {
+  padding: 15px;
+  background: #111827;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.header {
+  background: #333;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Content */
+.content {
+  padding: 10px;
+  overflow: auto;
+  flex: 1;
+}
+
+/* FOOTER FIXED */
+.footer {
+  background: #222;
+  color: white;
+  text-align: center;
+  padding: 10px;
+}
+
+/* TABLE (EXCEL STYLE) */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: #ddd;
+}
+
+th, td {
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+/* Scrollable table */
+.table-body {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+
+/* Mobile */
+@media(max-width: 768px) {
+  .sidebar {
+    width: 70px;
+  }
+  .sidebar h2 {
+    display: none;
+    font-size: 10px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>🌿 International Herb Africa </h2>
+
+  <a onclick="navigate('home')">Home</a>
+  <a onclick="navigate('orders')">Orders</a>
+  <a onclick="navigate('products')">Products</a>
+  <a onclick="navigate('customers')">Customers</a>
+  <a onclick="navigate('vendors')">Vendors</a>
+  <a onclick="navigate('drivers')">Drivers</a>
+
+  <div class="logout">
+    <button onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1 id="pageTitle">Dashboard</h1>
+    <input type="text" id="search" placeholder="Search..." onkeyup="searchTable()">
+  </div>
+
+
+<!-- Main -->
+<div class="main">
+
+  <div class="header">
+    <h3 id="pageTitle">Admin</h3>
+  </div>
+
+  <div class="content" id="contentArea">
+    <!-- Dynamic content here -->
+  </div>
+
+  <div class="footer">
+    © 2025 International Herb Africa | ALL RIGHTS RESERVED :
+  </div>
+
+</div>
+<div id="map" style="height:400px;"></div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY&callback=initMap" async></script>
+<script src="js/app.js"></script>
+<script>
+
+const API = "http://localhost:3000";
+
+/* LOAD USERS */
+async function loadUsers(role){
+  let res = await fetch(`${API}/users/${role}`);
+  let data = await res.json();
+  renderRows(data);
+}
+
+/* LOAD PRODUCTS */
+async function loadProducts(){
+  let res = await fetch(`${API}/products`);
+  let data = await res.json();
+
+  document.getElementById("contentArea").innerHTML = buildTable("Products");
+  renderRows(data);
+}
+
+/* LOAD ORDERS */
+async function loadOrders(){
+  let res = await fetch(`${API}/orders`);
+  let data = await res.json();
+
+  document.getElementById("contentArea").innerHTML = buildOrdersTable();
+  renderOrderRows(data);
+}
+
+function buildOrdersTable(){
+  return `
+  <div class="table-container">
+    <div class="table-header">
+      <h3>ORDERS</h3>
+    </div>
+
+    <div class="table-body">
+      <table>
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Vendor</th>
+            <th>Product</th>
+            <th>Customer</th>
+            <th>Address</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderOrderRows(list){
+  document.getElementById("tableBody").innerHTML = list.map(o=>`
+    <tr>
+      <td>${o.orderNumber}</td>
+      <td>${o.vendor}</td>
+      <td>${o.product}</td>
+      <td>${o.customer}</td>
+      <td>${o.address}</td>
+      <td>${o.status}</td>
+    </tr>
+  `).join("");
+}
+
+function buildTable(title){
+  return `
+  <div class="table-container">
+    <div class="table-header">
+      <h3>${title}</h3>
+    </div>
+
+    <div class="table-body">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Vendor</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+async function assignDriver(orderId, driver){
+  await fetch(`${API}/dispatch`, {
+    method:"POST",
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({orderId, driver})
+  });
+
+  alert("Driver assigned");
+}
+
+function initMap() {
+  const map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 12,
+    center: { lat: -33.9249, lng: 18.4241 }
+  });
+
+  const marker = new google.maps.Marker({
+    position: { lat: -33.9249, lng: 18.4241 },
+    map: map
+  });
+}
+
+import io from "socket.io-client";
+
+const socket = io("http://localhost:5000");
+
+socket.on("liveLocation", (data) => {
+  console.log("Driver moved:", data);
+});
+
+/* Navigation */
+function showPage(page){
+  document.getElementById("pageTitle").innerText = page.toUpperCase();
+
+  if(page === "home"){
+    document.getElementById("contentArea").innerHTML = "<h2>Welcome Dashboard</h2>";
+  }
+
+  if(page === "customers" || page === "vendors" || page === "drivers"){
+    renderTable(page);
+  }
+
+  if(page === "orders"){
+    document.getElementById("contentArea").innerHTML = "<h2>Orders Coming Soon</h2>";
+  }
+}
+
+/* Render rows */
+function renderRows(list){
+  document.getElementById("tableBody").innerHTML = list.map(d => `
+    <tr>
+      <td>${d.name}</td>
+      <td>${d.phone}</td>
+      <td>${d.email}</td>
+      <td>${d.city}</td>
+      <td>${d.address}</td>
+    </tr>
+  `).join("");
+}
+
+/* Search */
+function searchTable(val){
+  let filtered = data.filter(d =>
+    d.name.toLowerCase().includes(val.toLowerCase()) ||
+    d.email.toLowerCase().includes(val.toLowerCase()) ||
+    d.city.toLowerCase().includes(val.toLowerCase())
+  );
+
+  renderRows(filtered);
+}
+
+/* Logout */
+function logout(){
+  alert("Logging out...");
+}
+
+</script>
+
+</body>
+</html>

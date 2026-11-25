@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Account</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="images/favicon.ico" type="image/x-icon">
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="js/customer.js" defer></script>
+<style>
+  body{
+    background:#f4f6f9;
+  }
+
+  .orders-table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    margin-top:20px;
+  }
+
+  .orders-table th, .orders-table td{
+    padding:12px;
+    border:1px solid #ddd;
+  }
+
+  .orders-table th{
+    background:#0b3d0b;
+    color:white;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+      <img src="images/logo.png" alt="International Herb Africa Logo">
+      <h1>International Herb Africa</h1>
+    </div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="cart.html">Cart</a>
+    <a href="customer-dashboard.html">Dashboard</a>
+    <a href="login.html">Logout</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Account Settings</h1>
+  <form id="accountForm">
+    <label>Name:</label>
+    <input type="text" name="name" id="name" required>
+    <label>Email:</label>
+    <input type="email" name="email" id="email" required>
+    <label>Password:</label>
+    <input type="password" name="password" id="password" required>
+    <label>Phone:</label>
+    <input type="text" name="phone" id="phone" required>
+    <label>City / Province:</label>
+    <input type="text" name="city" id="city" required>
+    <label>Zip Code:</label>
+    <input type="text" name="zip" id="zip" required>
+    <label>Wallet Balance: <span id="walletBalance">R0.00</span></label>
+    <button type="submit">Update Account</button>
+  </form>
+
+  <h2>Payment Methods</h2>
+  <div id="paymentMethods">
+    <!-- Cards and wallet options populated by customer.js -->
+  </div>
+
+  <h2>Purchase History</h2>
+  <table class="orders-table" id="purchaseHistory">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Product</th>
+        <th>Status</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Populated by customer.js -->
+    </tbody>
+  </table>
+</main>
+
+<footer>
+  <p>&copy; 2025 International Herb Africa. All Rights Reserved.</p>
+</footer>
+
+<script>
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("/service-worker.js");
+  }
+
+  let deferredPrompt;
+
+  window.addEventListener("beforeinstallprompt", e=>{
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  function installApp(){
+    deferredPrompt.prompt();
+  }
+
+  function loadAccountDetails(){
+    fetch("/api/customer/account",{
+      headers:{Authorization:localStorage.getItem("customerToken")}
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      document.getElementById("name").value=data.name;
+      document.getElementById("email").value=data.email;
+      document.getElementById("phone").value=data.phone;
+      document.getElementById("city").value=data.city;
+      document.getElementById("zip").value=data.zip;
+      document.getElementById("walletBalance").innerText=`R${data.walletBalance.toFixed(2)}`;
+    });
+  }
+
+  loadAccountDetails();
+
+</script>
+
+</body>
+</html>

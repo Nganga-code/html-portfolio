@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="style.js" defer></script>
+  <style>
+    body{
+      background:#f4f6f9;
+    }
+
+    .orders-table{
+      width:100%;
+      border-collapse:collapse;
+      background:white;
+      margin-top:20px;
+    }
+
+    .orders-table th, .orders-table td{
+      padding:12px;
+      border:1px solid #ddd;
+    }
+
+    .orders-table th{
+      background:#0b3d0b;
+      color:white;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">International Herb Africa</div>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="account.html">Account</a></li>
+      <li><a href="cart.html">Cart</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <h1>Welcome, Valued Customer!</h1>
+  <p>Manage your account and view orders.</p>
+  <div id="orderHistory"></div>
+
+
+<div class="card">
+  <h3>💬 Chat</h3>
+
+  <div id="chatBox" style="height:200px;overflow:auto;border:1px solid #ddd;padding:10px"></div>
+
+  <input id="msg" placeholder="Type message..." style="width:70%">
+  <button onclick="sendMsg()">Send</button>
+</div>
+
+<div class="card">
+<h3>⭐ Rate Your Order</h3>
+
+<select id="rating">
+<option>5</option>
+<option>4</option>
+<option>3</option>
+<option>2</option>
+<option>1</option>
+</select>
+
+<textarea id="comment"></textarea>
+
+<button onclick="payNow()">Pay Now</button>
+<td>
+<button onclick="trackOrder('${o.id}')">Track</button>
+</td>
+<button onclick="submitReview()">Submit</button>
+</div>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 International Herb Africa. All rights reserved.</p>
+      <p>Email: <a href="mailto:info@internationalherbafrica.co.za">info@internationalherbafrica.co.za</a></p>
+      <div class="social-links">
+        <a href="https://facebook.com/InternationalHerbAfrica" target="_blank">Facebook</a> |
+        <a href="https://instagram.com/IntlHerbAfrica" target="_blank">Instagram</a> |
+        <a href="https://x.com/IntlHerbAfrica" target="_blank">X (Twitter)</a> |
+        <a href="https://linkedin.com/company/International-Herb-Africa/" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+<script src="style.js"></script>
+
+<script>
+
+if("serviceWorker" in navigator){
+      navigator.serviceWorker.register("/service-worker.js");
+    }
+
+window.addEventListener("beforeinstallprompt", e=>{
+e.preventDefault();
+deferredPrompt = e;
+});
+
+function installApp(){
+deferredPrompt.prompt();
+}
+
+    document.addEventListener("DOMContentLoaded", function() {
+      loadOrderHistory();
+    });
+
+    async function loadOrderHistory(){
+    const res = await fetch("/api/orders?userId=USER123");
+    const data = await res.json();
+    const orderHistoryDiv = document.getElementById("orderHistory");
+    orderHistoryDiv.innerHTML = "";
+    data.orders.forEach(order => {
+        const orderDiv = document.createElement("div");
+        orderDiv.classList.add("order");
+        orderDiv.innerHTML = `
+            <h4>Order ID: ${order.id}</h4>
+            <p>Status: ${order.status}</p>
+            <p>Total: R${order.total}</p>
+        `;
+        orderHistoryDiv.appendChild(orderDiv);
+    });
+}
+
+async function dispatchOrder(){
+
+const res = await fetch("/api/dispatch-order",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+orderId:"ORD1234",
+lat:customerLat,
+lng:customerLng
+})
+});
+}
+
+socket.on("driverLocation",(data)=>{
+
+ marker.setPosition({
+  lat:data.lat,
+  lng:data.lng
+ });
+
+});
+
+async function payNow(){
+
+const res = await fetch("/api/pay",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body: JSON.stringify({
+_id:"ORDER123",
+total:150
+})
+});
+
+const data = await res.json();
+
+window.location = data.url;
+
+}
+
+const socket = io();
+
+socket.on("notification", data=>{
+
+alert("🔔 " + data.message);
+
+});
+
+
+function trackOrder(id){
+window.location = `customer-tracking.html?id=${id}`;
+}
+
+const orderId = new URLSearchParams(location.search).get("id");
+
+socket.emit("joinOrder", orderId);
+
+function sendMsg(){
+
+const msg = document.getElementById("msg").value;
+
+socket.emit("sendMessage", {
+orderId,
+text: msg,
+sender: "customer"
+});
+
+document.getElementById("msg").value = "";
+
+}
+
+socket.on("newMessage", data=>{
+
+const box = document.getElementById("chatBox");
+
+box.innerHTML += `<p><b>${data.sender}:</b> ${data.text}</p>`;
+box.scrollTop = box.scrollHeight;
+
+});
+
+async function submitReview(){
+
+await fetch("/api/review",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body: JSON.stringify({
+orderId:"ORDER123",
+rating: document.getElementById("rating").value,
+comment: document.getElementById("comment").value
+})
+});
+
+alert("Thanks for your review!");
+
+}
+  </script>
+
+</body>
+</html>

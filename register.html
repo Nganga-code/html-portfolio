@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Join International Herb Africa as a customer, vendor or delivery driver.">
+  <title>Register | International Herb Africa</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/script.js" defer></script>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html"><img src="assets/iha-logo.png" alt="International Herb Africa logo"><span>INTERNATIONAL<br>HERB AFRICA</span></a>
+  <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mainNav"><span></span><span></span><span></span></button>
+  <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+    <a href="index.html">Home</a><a href="marketplace.html">Marketplace</a><a href="vendors.html">Vendors</a><a href="drivers.html">Drivers</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="addressbook.html">Address Book</a><a href="login.html">Login</a><a href="register.html">Register</a>
+  </nav>
+</header>
+<main class="auth-page"><div class="auth-layout">
+  <aside class="auth-showcase"><img src="assets/iha-logo.png" alt="International Herb Africa gold emblem" class="auth-showcase-logo"><p class="auth-eyebrow">JOIN THE IHA COMMUNITY</p><h1>Build your next chapter with us.</h1><p>One marketplace connecting customers, approved businesses and delivery partners.</p><div class="auth-feature">Verified partners · Responsible marketplace</div></aside>
+  <section class="auth-panel" aria-labelledby="register-heading"><div class="auth-card"><p class="auth-eyebrow">GET STARTED</p><h2 id="register-heading">Create your account</h2><p class="auth-intro">Already registered? <a href="login.html">Sign in</a></p>
+  <form class="auth-form" data-auth-demo="register">
+    <label for="account-type">I want to join as</label><select id="account-type" name="role" required><option value="customer">Customer</option><option value="vendor">Vendor / Business</option><option value="driver">Delivery Driver</option></select><p class="role-description" id="role-description" aria-live="polite">Browse eligible products and marketplace services.</p>
+    <label for="full-name">Full name</label><input id="full-name" name="name" autocomplete="name" placeholder="Your full name" required minlength="2">
+    <label for="register-email">Email address</label><input id="register-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+    <fieldset class="address-fieldset"><legend>Delivery address</legend>
+      <p class="address-help">Provide your preferred delivery location. Vendor and driver addresses will be confirmed separately during onboarding.</p>
+      <div class="address-grid">
+        <div class="address-full"><label for="street-address">Street address</label><input id="street-address" name="streetAddress" autocomplete="address-line1" placeholder="Street number and name" required></div>
+        <div class="address-full"><label for="address-extra">Apartment, unit or building (optional)</label><input id="address-extra" name="addressExtra" autocomplete="address-line2" placeholder="Apartment / floor / complex"></div>
+        <div><label for="city">City / Town</label><input id="city" name="city" autocomplete="address-level2" placeholder="Cape Town" required></div>
+        <div><label for="postal-code">Postal code</label><input id="postal-code" name="postalCode" autocomplete="postal-code" inputmode="numeric" pattern="[0-9]{4}" title="Enter a 4-digit South African postal code" placeholder="8001" required></div>
+        <div class="address-full"><label for="province">Province</label><select id="province" name="province" autocomplete="address-level1" required><option value="">Select province</option><option>Eastern Cape</option><option>Free State</option><option>Gauteng</option><option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option><option>North West</option><option>Northern Cape</option><option>Western Cape</option></select></div>
+      </div>
+    </fieldset>
+    <label for="register-password">Password</label><div class="password-field"><input id="register-password" name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required><button type="button" class="password-toggle" data-toggle-password="register-password" aria-label="Show password" aria-pressed="false">Show</button></div>
+    <label for="confirm-password">Confirm password</label><div class="password-field"><input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Repeat your password" minlength="8" required><button type="button" class="password-toggle" data-toggle-password="confirm-password" aria-label="Show password" aria-pressed="false">Show</button></div>
+    <label class="auth-check"><input type="checkbox" name="adult" required><span>I confirm that I am at least 18 years old. I understand that additional age and identity verification may be required.</span></label>
+    <button class="btn auth-submit" type="submit">Create account</button><p class="feedback" role="status" aria-live="polite"></p>
+  </form><p class="auth-footnote">Vendor and driver applications will require additional documentation and administrator approval. This is a prototype; no account will be created.</p></div></section>
+</div></main>
+<footer class="site-footer"><div class="footer-brand"><img src="assets/iha-logo.png" alt="IHA logo"><p>International Herb Africa — premium marketplace experience.</p></div><div class="footer-contact"><h3>Contact IHA</h3><a href="mailto:info@internationalherbafrica.co.za">info@internationalherbafrica.co.za</a><a href="contact.html">Contact page</a><a href="splash.html">Welcome screen</a></div><p class="copyright">© <span id="currentYear">2026</span> International Herb Africa. Prototype only — no accounts or payments are active.</p></footer>
+<nav class="iha-footer-nav" aria-label="Phase 3 pages"><a href="marketplace.html">Marketplace</a><a href="cart.html">Cart <span data-cart-count>0</span></a><a href="wallet.html">Wallet</a><a href="payment.html">Payments</a><a href="refunds.html">Refunds</a></nav></body>
+</html>
